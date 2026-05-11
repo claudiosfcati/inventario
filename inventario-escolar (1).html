@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Inventário Escolar</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<style>
+  :root {
+    --blue: #185FA5; --blue-light: #E6F1FB; --blue-dark: #042C53;
+    --teal: #0F6E56; --teal-light: #E1F5EE;
+    --amber: #854F0B; --amber-light: #FAEEDA;
+    --red: #A32D2D; --red-light: #FCEBEB;
+    --green: #3B6D11; --green-light: #EAF3DE;
+    --gray: #444441; --gray-light: #F1EFE8;
+    --text: #1a1a18; --text2: #5F5E5A; --text3: #888780;
+    --bg: #ffffff; --bg2: #F7F6F2; --bg3: #F1EFE8;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.2);
+    --radius: 12px; --radius-sm: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  .header { background: var(--blue-dark); color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
+  .header-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header h1 { font-size: 16px; font-weight: 600; }
+  .header p { font-size: 11px; opacity: 0.7; margin-top: 1px; }
+
+  /* CONFIG BANNER */
+  #config-banner { background: var(--amber-light); border-bottom: 1px solid #FAC775; padding: 10px 16px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--amber); }
+  #config-banner a { color: var(--amber); font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+  /* SCREENS */
+  .screen { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* CARDS */
+  .card { background: var(--bg); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+  /* SCANNER */
+  .scanner-area { background: #000; border-radius: var(--radius); overflow: hidden; position: relative; height: 220px; margin-bottom: 12px; }
+  #scanner-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .scanner-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .scanner-frame { width: 200px; height: 80px; border: 2px solid rgba(255,255,255,0.8); border-radius: 8px; position: relative; }
+  .scanner-frame::before, .scanner-frame::after { content: ''; position: absolute; width: 20px; height: 20px; border-color: #4af; border-style: solid; }
+  .scanner-frame::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+  .scanner-frame::after { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+  .scanner-line { position: absolute; top: 50%; left: 10px; right: 10px; height: 2px; background: linear-gradient(90deg, transparent, #4af, transparent); animation: scan 1.5s ease-in-out infinite; }
+  @keyframes scan { 0%,100% { top: 20%; opacity: 0.5; } 50% { top: 80%; opacity: 1; } }
+  .scanner-hint { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.8); font-size: 12px; }
+
+  #scanner-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,0.6); background: #111; }
+  #scanner-placeholder .icon { font-size: 40px; }
+  #scanner-placeholder p { font-size: 12px; }
+
+  /* BUTTONS */
+  .btn { width: 100%; padding: 13px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-success { background: var(--teal); color: #fff; }
+  .btn-secondary { background: var(--bg3); color: var(--text2); border: 0.5px solid var(--border2); }
+  .btn-danger { background: var(--red-light); color: var(--red); border: 0.5px solid #F7C1C1; }
+  .btn + .btn { margin-top: 8px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* DIVIDER */
+  .divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--text3); font-size: 12px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+
+  /* MANUAL INPUT */
+  .input-row { display: flex; gap: 8px; }
+  input[type=text], select, textarea { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  input[type=text]:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+  .input-btn { padding: 10px 16px; border-radius: var(--radius-sm); border: none; background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  /* FIELD ROWS */
+  .field-group { display: flex; flex-direction: column; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; }
+  .field-val { font-size: 14px; color: var(--text); font-weight: 500; }
+  .field-val.mono { font-family: monospace; font-size: 15px; color: var(--blue); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-blue { background: var(--blue-light); color: var(--blue-dark); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+
+  /* STATUS MSG */
+  #status-msg { padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; margin-bottom: 12px; display: none; }
+  #status-msg.success { background: var(--teal-light); color: var(--teal); display: block; }
+  #status-msg.error { background: var(--red-light); color: var(--red); display: block; }
+  #status-msg.info { background: var(--blue-light); color: var(--blue); display: block; }
+
+  /* LOADING */
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; gap: 12px; color: var(--text2); }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MODAL CONFIG */
+  #modal-config { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; }
+  #modal-config.open { display: flex; }
+  .modal-body { background: var(--bg); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 85vh; overflow-y: auto; }
+  .modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 99px; margin: 0 auto 16px; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+  .modal-field { margin-bottom: 12px; }
+  .modal-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+
+  /* HISTORY */
+  .hist-item { background: var(--bg); border-radius: var(--radius-sm); border: 0.5px solid var(--border); padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .hist-plaqueta { font-size: 15px; font-weight: 700; color: var(--blue); min-width: 60px; }
+  .hist-desc { font-size: 12px; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist-time { font-size: 11px; color: var(--text3); }
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--text3); font-size: 13px; }
+  .empty-icon { font-size: 36px; margin-bottom: 8px; }
+
+  /* NAV */
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 0.5px solid var(--border); display: flex; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 500; border: none; background: none; }
+  .nav-item.active { color: var(--blue); }
+  .nav-item .nav-icon { font-size: 22px; }
+  body { padding-bottom: 70px; }
+
+  /* CONFIG gear */
+  .gear-btn { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+  .header { position: relative; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🏫</div>
+  <div>
+    <h1>Inventário Escolar</h1>
+    <p id="header-sub">Leitura de patrimônio</p>
+  </div>
+  <button class="gear-btn" onclick="openConfig()" title="Configurações">⚙️</button>
+</div>
+
+<div id="config-banner">
+  ⚠️ Configure a planilha antes de começar — <a onclick="openConfig()">clique aqui</a>
+</div>
+
+<!-- SCREEN: SCAN -->
+<div class="screen active" id="screen-scan">
+  <div class="card">
+    <div class="card-title">📷 Escanear plaqueta</div>
+    <div class="scanner-area" id="scanner-area">
+      <div id="scanner-placeholder">
+        <div class="icon">📷</div>
+        <p>Câmera não iniciada</p>
+      </div>
+      <video id="scanner-video" autoplay muted playsinline style="display:none;"></video>
+      <div class="scanner-overlay" id="scanner-overlay" style="display:none;">
+        <div class="scanner-frame">
+          <div class="scanner-line"></div>
+        </div>
+      </div>
+      <div class="scanner-hint" id="scanner-hint" style="display:none;">Aponte para o código de barras</div>
+    </div>
+    <button class="btn btn-primary" id="btn-camera" onclick="toggleCamera()">📷 Iniciar câmera</button>
+    <div class="divider">ou</div>
+    <div class="input-row">
+      <input type="text" id="manual-plaqueta" placeholder="Digite o nº da plaqueta" inputmode="numeric" />
+      <button class="input-btn" onclick="buscarManual()">Buscar</button>
+    </div>
+  </div>
+
+  <div id="status-msg"></div>
+
+  <div id="result-area" style="display:none;">
+    <div class="card">
+      <div class="card-title">📋 Dados do bem</div>
+      <div class="field-group" id="dados-bem"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✏️ Atualizar informações</div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Estado de conservação</label>
+        <select id="campo-estado">
+          <option value="">-- selecione --</option>
+          <option>Novo</option>
+          <option>Bom</option>
+          <option>Regular</option>
+          <option>Inservível</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Local (dentro da escola)</label>
+        <select id="campo-local">
+          <option value="">-- selecione --</option>
+          <option>Sala dos Professores</option>
+          <option>Secretaria</option>
+          <option>Direção</option>
+          <option>Financeiro</option>
+          <option>Sala de Hora Atividade</option>
+          <option>Arquivo Inativo</option>
+          <option>Sala de Hora Atividade III</option>
+          <option>Pedagogia</option>
+          <option>Sala 1</option>
+          <option>Sala 2</option>
+          <option>Sala 3</option>
+          <option>Sala 4</option>
+          <option>Sala 5</option>
+          <option>Sala 6</option>
+          <option>Sala 7</option>
+          <option>Sala 8</option>
+          <option>Sala 9</option>
+          <option>Sala 10</option>
+          <option>Sala 13</option>
+          <option>Sala 14</option>
+          <option>Laboratório de Ciências</option>
+          <option>Laboratório de Informática 1</option>
+          <option>Laboratório de Informática 2</option>
+          <option>Biblioteca</option>
+          <option>Banheiro Serventes</option>
+          <option>Banheiro dos Professores</option>
+          <option>Banheiro Adaptado</option>
+          <option>Quadra Poliesportiva</option>
+          <option>Pátio / Área Externa</option>
+          <option>Cozinha</option>
+          <option>Almoxarifado</option>
+          <option>Depósito de Merenda</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>Observação (opcional)</label>
+        <input type="text" id="campo-obs" placeholder="Ex: assento rachado, tela quebrada..." />
+      </div>
+      <button class="btn btn-success" id="btn-salvar" onclick="salvarDados()">💾 Salvar na planilha</button>
+      <button class="btn btn-secondary" onclick="limparResultado()" style="margin-top:8px;">↩ Nova leitura</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: HISTORY -->
+<div class="screen" id="screen-hist">
+  <div class="card">
+    <div class="card-title">🕓 Histórico desta sessão</div>
+    <div id="hist-list"><div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum bem registrado ainda</p></div></div>
+  </div>
+</div>
+
+<!-- SCREEN: CONFIG (shown as modal) -->
+<div id="modal-config">
+  <div class="modal-body">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Configuração da Planilha</div>
+    <div class="modal-sub">Você precisará de uma API Key do Google e o ID da sua planilha.</div>
+
+    <div class="modal-field">
+      <label>ID da Planilha Google Sheets</label>
+      <input type="text" id="cfg-sheet-id" placeholder="Ex: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" />
+    </div>
+    <div class="modal-field">
+      <label>Nome da aba (sheet)</label>
+      <input type="text" id="cfg-sheet-name" placeholder="Ex: Plan1 ou Página1" />
+    </div>
+    <div class="modal-field">
+      <label>API Key do Google</label>
+      <input type="text" id="cfg-api-key" placeholder="AIza..." />
+    </div>
+    <div class="modal-field">
+      <label>Coluna da PLAQUETA (letra)</label>
+      <input type="text" id="cfg-col-plaqueta" placeholder="Ex: B" style="text-transform:uppercase;" />
+    </div>
+    <div class="modal-field">
+      <label>Coluna ESTADO DE CONS (letra)</label>
+      <input type="text" id="cfg-col-estado" placeholder="Ex: F" style="text-transform:uppercase;" />
+    </div>
+    <div class="modal-field">
+      <label>Coluna LOCAL (letra)</label>
+      <input type="text" id="cfg-col-local" placeholder="Ex: D" style="text-transform:uppercase;" />
+    </div>
+    <div class="modal-field">
+      <label>Linha onde começa os dados (número)</label>
+      <input type="text" id="cfg-start-row" placeholder="Ex: 2 (pula o cabeçalho)" inputmode="numeric" />
+    </div>
+
+    <div style="background:var(--blue-light);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--blue-dark);line-height:1.6;">
+      <strong>Como obter a API Key:</strong><br>
+      1. Acesse <strong>console.cloud.google.com</strong><br>
+      2. Crie um projeto → Ative "Google Sheets API"<br>
+      3. Credenciais → Criar chave de API<br>
+      4. Restrinja a chave à Sheets API<br><br>
+      <strong>ID da planilha:</strong> é a parte da URL entre <code>/d/</code> e <code>/edit</code>
+    </div>
+
+    <button class="btn btn-primary" onclick="salvarConfig()">✅ Salvar configuração</button>
+    <button class="btn btn-secondary" onclick="closeConfig()" style="margin-top:8px;">Cancelar</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-scan" onclick="showScreen('scan')">
+    <span class="nav-icon">📷</span>Escanear
+  </button>
+  <button class="nav-item" id="nav-hist" onclick="showScreen('hist')">
+    <span class="nav-icon">🕓</span>Histórico
+  </button>
+</nav>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────
+let cfg = {
+  sheetId: '', sheetName: 'Plan1', apiKey: '',
+  colPlaqueta: 'B', colEstado: 'F', colLocal: 'D', startRow: 2
+};
+
+function loadConfig() {
+  try {
+    const s = localStorage.getItem('inventario_cfg');
+    if (s) { cfg = {...cfg, ...JSON.parse(s)}; }
+  } catch(e) {}
+  updateConfigBanner();
+  populateConfigModal();
+}
+
+function salvarConfig() {
+  cfg.sheetId = document.getElementById('cfg-sheet-id').value.trim();
+  cfg.sheetName = document.getElementById('cfg-sheet-name').value.trim() || 'Plan1';
+  cfg.apiKey = document.getElementById('cfg-api-key').value.trim();
+  cfg.colPlaqueta = document.getElementById('cfg-col-plaqueta').value.trim().toUpperCase() || 'B';
+  cfg.colEstado = document.getElementById('cfg-col-estado').value.trim().toUpperCase() || 'F';
+  cfg.colLocal = document.getElementById('cfg-col-local').value.trim().toUpperCase() || 'D';
+  cfg.startRow = parseInt(document.getElementById('cfg-start-row').value) || 2;
+  localStorage.setItem('inventario_cfg', JSON.stringify(cfg));
+  closeConfig();
+  updateConfigBanner();
+  showStatus('✅ Configuração salva!', 'success');
+}
+
+function updateConfigBanner() {
+  const banner = document.getElementById('config-banner');
+  const sub = document.getElementById('header-sub');
+  if (cfg.sheetId && cfg.apiKey) {
+    banner.style.display = 'none';
+    sub.textContent = '✅ Planilha conectada';
+  } else {
+    banner.style.display = 'flex';
+    sub.textContent = 'Leitura de patrimônio';
+  }
+}
+
+function populateConfigModal() {
+  document.getElementById('cfg-sheet-id').value = cfg.sheetId;
+  document.getElementById('cfg-sheet-name').value = cfg.sheetName;
+  document.getElementById('cfg-api-key').value = cfg.apiKey;
+  document.getElementById('cfg-col-plaqueta').value = cfg.colPlaqueta;
+  document.getElementById('cfg-col-estado').value = cfg.colEstado;
+  document.getElementById('cfg-col-local').value = cfg.colLocal;
+  document.getElementById('cfg-start-row').value = cfg.startRow;
+}
+
+function openConfig() { document.getElementById('modal-config').classList.add('open'); populateConfigModal(); }
+function closeConfig() { document.getElementById('modal-config').classList.remove('open'); }
+
+// ── NAVIGATION ───────────────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'hist') renderHistory();
+}
+
+// ── STATUS ───────────────────────────────────────────────────────────
+function showStatus(msg, type) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg; el.className = type; el.style.display = 'block';
+  if (type !== 'info') setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// ── CAMERA ───────────────────────────────────────────────────────────
+let cameraActive = false;
+let stream = null;
+
+async function toggleCamera() {
+  if (cameraActive) { stopCamera(); return; }
+  const btn = document.getElementById('btn-camera');
+  btn.textContent = '⏳ Iniciando...'; btn.disabled = true;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('scanner-video');
+    video.srcObject = stream; video.style.display = 'block';
+    document.getElementById('scanner-placeholder').style.display = 'none';
+    document.getElementById('scanner-overlay').style.display = 'flex';
+    document.getElementById('scanner-hint').style.display = 'block';
+    btn.textContent = '⏹ Parar câmera'; btn.disabled = false;
+    btn.className = 'btn btn-danger';
+    cameraActive = true;
+    startQuagga(video);
+  } catch(e) {
+    showStatus('❌ Câmera não disponível: ' + e.message, 'error');
+    btn.textContent = '📷 Iniciar câmera'; btn.disabled = false;
+  }
+}
+
+function stopCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  Quagga.stop();
+  const video = document.getElementById('scanner-video');
+  video.style.display = 'none'; video.srcObject = null;
+  document.getElementById('scanner-placeholder').style.display = 'flex';
+  document.getElementById('scanner-overlay').style.display = 'none';
+  document.getElementById('scanner-hint').style.display = 'none';
+  const btn = document.getElementById('btn-camera');
+  btn.textContent = '📷 Iniciar câmera'; btn.className = 'btn btn-primary'; btn.disabled = false;
+  cameraActive = false;
+}
+
+function startQuagga(video) {
+  Quagga.init({
+    inputStream: { type: 'LiveStream', target: video, constraints: { facingMode: 'environment' } },
+    decoder: { readers: ['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','upc_e_reader','i2of5_reader'] },
+    locate: true
+  }, function(err) {
+    if (err) { showStatus('Erro no scanner: ' + err, 'error'); return; }
+    Quagga.start();
+  });
+
+  let lastCode = ''; let lastTime = 0;
+  Quagga.onDetected(function(result) {
+    const code = result.codeResult.code;
+    const now = Date.now();
+    if (code === lastCode && now - lastTime < 3000) return;
+    lastCode = code; lastTime = now;
+    stopCamera();
+    document.getElementById('manual-plaqueta').value = code;
+    buscarPlaqueta(code);
+  });
+}
+
+// ── BUSCA ─────────────────────────────────────────────────────────────
+let dadosLinha = null;
+let linhaEncontrada = null;
+
+function buscarManual() {
+  const val = document.getElementById('manual-plaqueta').value.trim();
+  if (!val) { showStatus('Digite o número da plaqueta.', 'error'); return; }
+  buscarPlaqueta(val);
+}
+
+async function buscarPlaqueta(plaqueta) {
+  if (!cfg.sheetId || !cfg.apiKey) {
+    showStatus('⚠️ Configure a planilha primeiro (botão ⚙️)', 'error'); return;
+  }
+  showStatus('🔍 Buscando plaqueta ' + plaqueta + '...', 'info');
+  document.getElementById('result-area').style.display = 'none';
+
+  try {
+    const range = encodeURIComponent(cfg.sheetName + '!A:L');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.apiKey}`;
+    const resp = await fetch(url);
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || resp.status); }
+    const data = await resp.json();
+    const rows = data.values || [];
+
+    // find header row (row 0) to map columns
+    let headerRow = rows[0] || [];
+    let colIdx = {};
+    headerRow.forEach((h, i) => { colIdx[h.trim().toUpperCase()] = i; });
+
+    // find by plaqueta column
+    const colLetterToIndex = l => l.toUpperCase().charCodeAt(0) - 65;
+    const pIdx = colLetterToIndex(cfg.colPlaqueta);
+
+    let found = null; let foundRowNum = null;
+    for (let i = cfg.startRow - 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (row[pIdx] && String(row[pIdx]).trim() === String(plaqueta).trim()) {
+        found = row; foundRowNum = i + 1; break;
+      }
+    }
+
+    if (!found) {
+      showStatus('❌ Plaqueta ' + plaqueta + ' não encontrada na planilha.', 'error'); return;
+    }
+
+    dadosLinha = found; linhaEncontrada = foundRowNum;
+    document.getElementById('status-msg').style.display = 'none';
+    renderDados(found, plaqueta);
+
+  } catch(e) {
+    showStatus('❌ Erro ao buscar: ' + e.message, 'error');
+  }
+}
+
+function renderDados(row, plaqueta) {
+  const ci = l => l.toUpperCase().charCodeAt(0) - 65;
+  const get = l => (row[ci(l)] || '').trim();
+
+  const estado = get(cfg.colEstado);
+  const local = get(cfg.colLocal);
+
+  // all columns mapping (adjust letters to your real sheet)
+  const html = `
+    <div class="field-row">
+      <div class="field"><label>Plaqueta</label><span class="field-val mono">${plaqueta}</span></div>
+      <div class="field"><label>Estado atual</label><span class="field-val">${estadoBadge(estado)}</span></div>
+    </div>
+    <div class="field"><label>Descrição</label><span class="field-val">${get('C') || '—'}</span></div>
+    <div class="field-row">
+      <div class="field"><label>Unidade</label><span class="field-val">${get('A') || '—'}</span></div>
+      <div class="field"><label>Classe</label><span class="field-val">${get('E') || '—'}</span></div>
+    </div>
+    <div class="field"><label>Local atual</label><span class="field-val">${local || '—'}</span></div>
+    <div class="field-row">
+      <div class="field"><label>Valor aquisição</label><span class="field-val">${get('I') || '—'}</span></div>
+      <div class="field"><label>Valor líquido</label><span class="field-val">${get('K') || '—'}</span></div>
+    </div>
+  `;
+  document.getElementById('dados-bem').innerHTML = html;
+
+  // pre-fill selects
+  const selEstado = document.getElementById('campo-estado');
+  const selLocal = document.getElementById('campo-local');
+  selEstado.value = estado || '';
+  selLocal.value = local || '';
+
+  document.getElementById('result-area').style.display = 'block';
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function estadoBadge(e) {
+  const map = { 'Novo': 'badge-blue', 'Bom': 'badge-green', 'Regular': 'badge-amber', 'Inservível': 'badge-red' };
+  const cls = map[e] || 'badge-blue';
+  return e ? `<span class="badge ${cls}">${e}</span>` : '<span style="color:var(--text3)">—</span>';
+}
+
+// ── SALVAR ────────────────────────────────────────────────────────────
+async function salvarDados() {
+  if (!linhaEncontrada) return;
+  const estado = document.getElementById('campo-estado').value;
+  const local = document.getElementById('campo-local').value;
+  const obs = document.getElementById('campo-obs').value.trim();
+
+  if (!estado) { showStatus('Selecione o estado de conservação.', 'error'); return; }
+  if (!local) { showStatus('Selecione o local do bem.', 'error'); return; }
+
+  const btn = document.getElementById('btn-salvar');
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
+
+  try {
+    // Build ranges to update
+    const updates = [];
+    const sheet = cfg.sheetName;
+    updates.push({ range: `${sheet}!${cfg.colEstado}${linhaEncontrada}`, values: [[estado]] });
+    updates.push({ range: `${sheet}!${cfg.colLocal}${linhaEncontrada}`, values: [[local]] });
+
+    const body = { valueInputOption: 'USER_ENTERED', data: updates };
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values:batchUpdate?key=${cfg.apiKey}`;
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+    if (!resp.ok) {
+      const e = await resp.json();
+      // Se der 403, provavelmente precisa de OAuth — informar
+      if (resp.status === 403) {
+        throw new Error('Permissão negada. A planilha precisa estar pública para leitura e a API key com permissão de escrita, OU use o modo OAuth. Veja as instruções.');
+      }
+      throw new Error(e.error?.message || resp.status);
+    }
+
+    // Save to local history
+    const plaqueta = document.getElementById('manual-plaqueta').value;
+    const desc = dadosLinha ? (dadosLinha[2] || '') : '';
+    addHistory({ plaqueta, desc, estado, local, obs, time: new Date().toLocaleTimeString('pt-BR') });
+
+    showStatus('✅ Salvo com sucesso na planilha!', 'success');
+    limparResultado();
+
+  } catch(e) {
+    showStatus('❌ Erro ao salvar: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '💾 Salvar na planilha';
+}
+
+function limparResultado() {
+  document.getElementById('result-area').style.display = 'none';
+  document.getElementById('manual-plaqueta').value = '';
+  document.getElementById('campo-obs').value = '';
+  document.getElementById('status-msg').style.display = 'none';
+  dadosLinha = null; linhaEncontrada = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────
+let sessionHistory = [];
+
+function addHistory(item) {
+  sessionHistory.unshift(item);
+}
+
+function renderHistory() {
+  const el = document.getElementById('hist-list');
+  if (!sessionHistory.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum bem registrado nesta sessão</p></div>';
+    return;
+  }
+  el.innerHTML = sessionHistory.map(h => `
+    <div class="hist-item">
+      <span class="hist-plaqueta">${h.plaqueta}</span>
+      <div style="flex:1; overflow:hidden;">
+        <div class="hist-desc">${h.desc || '—'}</div>
+        <div style="display:flex;gap:6px;margin-top:3px;">
+          ${estadoBadge(h.estado)}
+          <span style="font-size:11px;color:var(--text3);">${h.local}</span>
+        </div>
+      </div>
+      <span class="hist-time">${h.time}</span>
+    </div>
+  `).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+loadConfig();
+</script>
+</body>
+</html>
