@@ -20,20 +20,26 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; padding-bottom: 70px; }
+
   .header { background: var(--blue-dark); color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; position: relative; }
   .header-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .header h1 { font-size: 16px; font-weight: 600; }
   .header p { font-size: 11px; opacity: 0.7; margin-top: 1px; }
   .gear-btn { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
   #login-bar { background: var(--amber-light); border-bottom: 1px solid #FAC775; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--amber); }
   #login-bar button { background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
   #user-bar { background: var(--teal-light); border-bottom: 1px solid #9FE1CB; padding: 8px 16px; display: none; align-items: center; justify-content: space-between; font-size: 12px; color: var(--teal); }
   #user-bar button { background: none; border: 0.5px solid var(--teal); border-radius: 6px; padding: 3px 10px; font-size: 11px; color: var(--teal); cursor: pointer; }
+
   .screen { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
   .screen.active { display: block; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
   .card { background: var(--bg); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  /* SCANNER */
   .scanner-area { background: #000; border-radius: var(--radius); overflow: hidden; position: relative; height: 220px; margin-bottom: 12px; }
   #scanner-video { width: 100%; height: 100%; object-fit: cover; display: block; }
   .scanner-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
@@ -44,6 +50,8 @@
   @keyframes scan { 0%,100%{top:15%;opacity:.5} 50%{top:75%;opacity:1} }
   .scanner-hint { position:absolute; bottom:10px; left:0; right:0; text-align:center; color:rgba(255,255,255,.8); font-size:12px; }
   #scanner-placeholder { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:rgba(255,255,255,.6); background:#111; font-size:12px; }
+
+  /* BUTTONS */
   .btn { width:100%; padding:13px; border-radius:var(--radius-sm); border:none; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity .15s,transform .1s; }
   .btn:active { transform:scale(.98); opacity:.9; }
   .btn-primary { background:var(--blue); color:#fff; }
@@ -52,27 +60,52 @@
   .btn-danger { background:var(--red-light); color:var(--red); }
   .btn+.btn { margin-top:8px; }
   .btn:disabled { opacity:.4; cursor:not-allowed; }
+
   .divider { display:flex; align-items:center; gap:10px; margin:14px 0; color:var(--text3); font-size:12px; }
   .divider::before,.divider::after { content:''; flex:1; height:0.5px; background:var(--border); }
-  .input-row { display:flex; gap:8px; }
+
+  /* INPUTS */
+  .search-wrap { position: relative; }
+  .search-input { width:100%; padding:12px 40px 12px 14px; border:1.5px solid var(--border2); border-radius:var(--radius-sm); font-size:15px; background:var(--bg); color:var(--text); outline:none; transition:border-color .15s; }
+  .search-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(24,95,165,.1); }
+  .search-clear { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:var(--bg3); border:none; border-radius:50%; width:24px; height:24px; font-size:14px; cursor:pointer; color:var(--text2); display:none; align-items:center; justify-content:center; }
+  .search-clear.visible { display:flex; }
+
   input[type=text], select { width:100%; padding:10px 12px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; background:var(--bg); color:var(--text); outline:none; }
   input[type=text]:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(24,95,165,.1); }
-  .input-btn { padding:10px 16px; border-radius:var(--radius-sm); border:none; background:var(--blue); color:#fff; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; }
+
+  /* SUGGESTIONS DROPDOWN */
+  #suggestions { background:var(--bg); border:1px solid var(--border2); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); max-height:260px; overflow-y:auto; display:none; box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+  #suggestions.open { display:block; }
+  .sugg-item { padding:12px 14px; cursor:pointer; border-bottom:0.5px solid var(--border); display:flex; align-items:center; gap:10px; transition:background .1s; }
+  .sugg-item:last-child { border-bottom:none; }
+  .sugg-item:active, .sugg-item:hover { background:var(--blue-light); }
+  .sugg-plaqueta { font-family:monospace; font-size:14px; font-weight:700; color:var(--blue); min-width:90px; }
+  .sugg-plaqueta mark { background:none; color:var(--blue-dark); text-decoration:underline; font-weight:900; }
+  .sugg-desc { font-size:12px; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+  .sugg-count { font-size:11px; color:var(--text3); padding:10px 14px; text-align:center; background:var(--bg2); }
+  .loading-sugg { padding:14px; text-align:center; color:var(--text3); font-size:13px; }
+
+  /* FIELDS */
   .field-group { display:flex; flex-direction:column; gap:10px; }
   .field { display:flex; flex-direction:column; gap:4px; }
   .field label { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.4px; }
   .field-val { font-size:14px; color:var(--text); font-weight:500; }
   .field-val.mono { font-family:monospace; font-size:15px; color:var(--blue); }
   .field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
   .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600; }
   .badge-blue { background:var(--blue-light); color:var(--blue-dark); }
   .badge-green { background:var(--green-light); color:var(--green); }
   .badge-amber { background:var(--amber-light); color:var(--amber); }
   .badge-red { background:var(--red-light); color:var(--red); }
+
   #status-msg { padding:12px 14px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; margin-bottom:12px; display:none; }
   #status-msg.success { background:var(--teal-light); color:var(--teal); display:block; }
   #status-msg.error { background:var(--red-light); color:var(--red); display:block; }
   #status-msg.info { background:var(--blue-light); color:var(--blue); display:block; }
+
+  /* MODAL CONFIG */
   #modal-config { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:flex-end; }
   #modal-config.open { display:flex; }
   .modal-body { background:var(--bg); border-radius:20px 20px 0 0; padding:20px; width:100%; max-height:90vh; overflow-y:auto; }
@@ -81,15 +114,24 @@
   .modal-sub { font-size:13px; color:var(--text2); margin-bottom:16px; }
   .modal-field { margin-bottom:12px; }
   .modal-field label { display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:4px; }
+  .info-box { background:var(--blue-light); border-radius:8px; padding:12px; margin-bottom:14px; font-size:12px; color:#042C53; line-height:1.7; }
+  .info-box code { background:rgba(0,0,0,.08); padding:1px 5px; border-radius:4px; font-size:11px; }
+
+  /* HISTORY */
   .hist-item { background:var(--bg); border-radius:var(--radius-sm); border:0.5px solid var(--border); padding:12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
-  .hist-plaqueta { font-size:15px; font-weight:700; color:var(--blue); min-width:60px; }
+  .hist-plaqueta { font-size:15px; font-weight:700; color:var(--blue); min-width:60px; font-family:monospace; }
   .empty-state { text-align:center; padding:32px 16px; color:var(--text3); font-size:13px; }
+
+  /* NAV */
   .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--bg); border-top:0.5px solid var(--border); display:flex; padding:8px 0 max(8px,env(safe-area-inset-bottom)); }
   .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px; cursor:pointer; color:var(--text3); font-size:10px; font-weight:500; border:none; background:none; }
   .nav-item.active { color:var(--blue); }
   .nav-icon { font-size:22px; }
-  .info-box { background:var(--blue-light); border-radius:8px; padding:12px; margin-bottom:14px; font-size:12px; color:#042C53; line-height:1.7; }
-  .info-box code { background:rgba(0,0,0,.08); padding:1px 5px; border-radius:4px; font-size:11px; }
+
+  /* CACHE indicator */
+  #cache-bar { background:#f0f0f0; border-bottom:0.5px solid var(--border); padding:6px 16px; font-size:11px; color:var(--text3); display:none; align-items:center; justify-content:space-between; }
+  #cache-bar.visible { display:flex; }
+  #cache-bar button { background:none; border:none; color:var(--blue); font-size:11px; font-weight:600; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -111,6 +153,10 @@
   <span id="user-name">✅ Conectado</span>
   <button onclick="logoutGoogle()">Sair</button>
 </div>
+<div id="cache-bar">
+  <span id="cache-info">📦 Planilha em cache</span>
+  <button onclick="recarregarPlanilha()">🔄 Atualizar</button>
+</div>
 
 <!-- SCAN -->
 <div class="screen active" id="screen-scan">
@@ -128,10 +174,23 @@
       <div class="scanner-hint" id="scanner-hint" style="display:none;">Aponte para o código de barras</div>
     </div>
     <button class="btn btn-primary" id="btn-camera" onclick="toggleCamera()">📷 Iniciar câmera</button>
-    <div class="divider">ou</div>
-    <div class="input-row">
-      <input type="text" id="manual-plaqueta" placeholder="Digite o nº da plaqueta" inputmode="numeric" />
-      <button class="input-btn" onclick="buscarManual()">Buscar</button>
+
+    <div class="divider">ou buscar por número</div>
+
+    <div style="margin-bottom:4px;">
+      <div class="search-wrap">
+        <input class="search-input" type="text" id="manual-plaqueta"
+          placeholder="Digite parte do número (ex: 29033)"
+          inputmode="numeric"
+          oninput="onSearchInput(this.value)"
+          onkeydown="onSearchKey(event)"
+          autocomplete="off" />
+        <button class="search-clear" id="btn-clear" onclick="limparBusca()">✕</button>
+      </div>
+      <div id="suggestions"></div>
+      <p style="font-size:11px;color:var(--text3);margin-top:6px;">
+        💡 Digite os algarismos finais — ele filtra automaticamente
+      </p>
     </div>
   </div>
 
@@ -193,7 +252,6 @@
     <div class="modal-handle"></div>
     <div class="modal-title">⚙️ Configuração</div>
     <div class="modal-sub">Dados da planilha e autenticação Google.</div>
-
     <div class="modal-field"><label>ID da Planilha</label>
       <input type="text" id="cfg-sheet-id" /></div>
     <div class="modal-field"><label>Nome da aba</label>
@@ -206,20 +264,11 @@
       <input type="text" id="cfg-col-local" style="width:70px;text-transform:uppercase;" /></div>
     <div class="modal-field"><label>Linha inicial dos dados</label>
       <input type="text" id="cfg-start-row" style="width:70px;" inputmode="numeric" /></div>
-
     <div class="modal-field"><label>Client ID do Google OAuth</label>
       <input type="text" id="cfg-client-id" placeholder="XXXXXXX.apps.googleusercontent.com" /></div>
-
     <div class="info-box">
-      <strong>Como criar o Client ID OAuth:</strong><br>
-      1. Acesse <strong>console.cloud.google.com</strong><br>
-      2. Credenciais → Criar credencial → <strong>ID do cliente OAuth 2.0</strong><br>
-      3. Tipo: <strong>Aplicativo da Web</strong><br>
-      4. Em "Origens JS autorizadas" adicione:<br>
-      <code>https://claudiosfcati.github.io</code><br>
-      5. Copie o <strong>ID do cliente</strong> e cole acima
+      <strong>Dica:</strong> Após configurar, o app carrega toda a planilha na memória para que a busca seja instantânea, sem precisar consultar o servidor a cada digitação.
     </div>
-
     <button class="btn btn-primary" onclick="salvarConfig()">✅ Salvar</button>
     <button class="btn btn-secondary" onclick="closeConfig()" style="margin-top:8px;">Cancelar</button>
   </div>
@@ -237,49 +286,98 @@
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script>
 const API_KEY = 'AIzaSyD4EVv4l8POZtiH0FlJRtUzxChfwDD94rM';
-let cfg = { sheetId:'1XMCraAQG6E5nwoJIqqYzDMLH6ujiWEwYCfMNHHNgZ_4', sheetName:'PATRIMONIO', colPlaqueta:'B', colEstado:'F', colLocal:'D', startRow:2, clientId:'' };
-let accessToken = null, tokenExpiry = 0;
+let cfg = {
+  sheetId:'1XMCraAQG6E5nwoJIqqYzDMLH6ujiWEwYCfMNHHNgZ_4',
+  sheetName:'PATRIMONIO', colPlaqueta:'B', colEstado:'F', colLocal:'D',
+  startRow:2, clientId:'518538036029-hfstgf10e4d9blcg3487lrq8cagru8b2.apps.googleusercontent.com'
+};
+let accessToken=null, tokenExpiry=0;
 
+// Cache de todas as linhas da planilha
+let planilhaCache = [];
+let cacheCarregado = false;
+
+// ── CONFIG ────────────────────────────────────────────────────────────
 function loadConfig() {
-  try { const s = localStorage.getItem('inv_cfg'); if(s) cfg={...cfg,...JSON.parse(s)}; } catch(e){}
+  try { const s=localStorage.getItem('inv_cfg'); if(s) cfg={...cfg,...JSON.parse(s)}; } catch(e){}
   populateCfg();
+  carregarPlanilhaCache();
 }
 function salvarConfig() {
-  cfg.sheetId = document.getElementById('cfg-sheet-id').value.trim();
-  cfg.sheetName = document.getElementById('cfg-sheet-name').value.trim() || 'PATRIMONIO';
-  cfg.colPlaqueta = document.getElementById('cfg-col-plaqueta').value.trim().toUpperCase() || 'B';
-  cfg.colEstado = document.getElementById('cfg-col-estado').value.trim().toUpperCase() || 'F';
-  cfg.colLocal = document.getElementById('cfg-col-local').value.trim().toUpperCase() || 'D';
-  cfg.startRow = parseInt(document.getElementById('cfg-start-row').value)||2;
-  cfg.clientId = document.getElementById('cfg-client-id').value.trim();
-  localStorage.setItem('inv_cfg', JSON.stringify(cfg));
-  closeConfig(); showStatus('✅ Configuração salva!','success');
+  cfg.sheetId=document.getElementById('cfg-sheet-id').value.trim();
+  cfg.sheetName=document.getElementById('cfg-sheet-name').value.trim()||'PATRIMONIO';
+  cfg.colPlaqueta=document.getElementById('cfg-col-plaqueta').value.trim().toUpperCase()||'B';
+  cfg.colEstado=document.getElementById('cfg-col-estado').value.trim().toUpperCase()||'F';
+  cfg.colLocal=document.getElementById('cfg-col-local').value.trim().toUpperCase()||'D';
+  cfg.startRow=parseInt(document.getElementById('cfg-start-row').value)||2;
+  cfg.clientId=document.getElementById('cfg-client-id').value.trim();
+  localStorage.setItem('inv_cfg',JSON.stringify(cfg));
+  closeConfig();
+  planilhaCache=[]; cacheCarregado=false;
+  carregarPlanilhaCache();
+  showStatus('✅ Configuração salva!','success');
 }
 function populateCfg() {
-  document.getElementById('cfg-sheet-id').value = cfg.sheetId;
-  document.getElementById('cfg-sheet-name').value = cfg.sheetName;
-  document.getElementById('cfg-col-plaqueta').value = cfg.colPlaqueta;
-  document.getElementById('cfg-col-estado').value = cfg.colEstado;
-  document.getElementById('cfg-col-local').value = cfg.colLocal;
-  document.getElementById('cfg-start-row').value = cfg.startRow;
-  document.getElementById('cfg-client-id').value = cfg.clientId||'';
+  document.getElementById('cfg-sheet-id').value=cfg.sheetId;
+  document.getElementById('cfg-sheet-name').value=cfg.sheetName;
+  document.getElementById('cfg-col-plaqueta').value=cfg.colPlaqueta;
+  document.getElementById('cfg-col-estado').value=cfg.colEstado;
+  document.getElementById('cfg-col-local').value=cfg.colLocal;
+  document.getElementById('cfg-start-row').value=cfg.startRow;
+  document.getElementById('cfg-client-id').value=cfg.clientId||'';
 }
-function openConfig() { document.getElementById('modal-config').classList.add('open'); populateCfg(); }
-function closeConfig() { document.getElementById('modal-config').classList.remove('open'); }
+function openConfig(){document.getElementById('modal-config').classList.add('open');populateCfg();}
+function closeConfig(){document.getElementById('modal-config').classList.remove('open');}
 
+// ── CACHE DA PLANILHA ─────────────────────────────────────────────────
+async function carregarPlanilhaCache() {
+  if (!cfg.sheetId || !cfg.apiKey && !API_KEY) return;
+  const cacheBar = document.getElementById('cache-bar');
+  document.getElementById('cache-info').textContent = '⏳ Carregando planilha...';
+  cacheBar.classList.add('visible');
+  try {
+    const range = encodeURIComponent(cfg.sheetName+'!A:K');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${API_KEY}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Erro ao carregar');
+    const data = await resp.json();
+    const rows = data.values || [];
+    const ci = l => l.toUpperCase().charCodeAt(0)-65;
+    const pIdx = ci(cfg.colPlaqueta);
+    planilhaCache = [];
+    for (let i=cfg.startRow-1; i<rows.length; i++) {
+      const row = rows[i];
+      if (row[pIdx]) {
+        planilhaCache.push({ row, rowNum: i+1, plaqueta: String(row[pIdx]).trim() });
+      }
+    }
+    cacheCarregado = true;
+    const total = planilhaCache.length;
+    document.getElementById('cache-info').textContent = `📦 ${total} bens carregados — busca instantânea ativa`;
+    setTimeout(()=>cacheBar.classList.remove('visible'), 4000);
+  } catch(e) {
+    document.getElementById('cache-info').textContent = '⚠️ Erro ao carregar planilha';
+  }
+}
+
+function recarregarPlanilha() {
+  planilhaCache=[]; cacheCarregado=false;
+  carregarPlanilhaCache();
+}
+
+// ── GOOGLE LOGIN ──────────────────────────────────────────────────────
 function loginGoogle() {
-  if (!cfg.clientId) { showStatus('⚠️ Configure o Client ID OAuth nas configurações (⚙️) primeiro.','error'); openConfig(); return; }
+  if (!cfg.clientId) { showStatus('⚠️ Configure o Client ID OAuth (⚙️)','error'); openConfig(); return; }
   const client = google.accounts.oauth2.initTokenClient({
     client_id: cfg.clientId,
     scope: 'https://www.googleapis.com/auth/spreadsheets',
     callback: (r) => {
       if (r.error) { showStatus('❌ Erro no login: '+r.error,'error'); return; }
-      accessToken = r.access_token;
-      tokenExpiry = Date.now() + r.expires_in*1000;
-      document.getElementById('login-bar').style.display = 'none';
-      document.getElementById('user-bar').style.display = 'flex';
-      document.getElementById('user-name').textContent = '✅ Conectado ao Google';
-      showStatus('✅ Login realizado! Agora você pode salvar.','success');
+      accessToken=r.access_token; tokenExpiry=Date.now()+r.expires_in*1000;
+      document.getElementById('login-bar').style.display='none';
+      document.getElementById('user-bar').style.display='flex';
+      document.getElementById('user-name').textContent='✅ Conectado ao Google';
+      showStatus('✅ Login realizado!','success');
     }
   });
   client.requestAccessToken();
@@ -292,6 +390,7 @@ function logoutGoogle() {
 }
 const isLoggedIn = () => accessToken && Date.now() < tokenExpiry;
 
+// ── NAVIGATION ────────────────────────────────────────────────────────
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -305,13 +404,137 @@ function showStatus(msg,type) {
   if(type!=='info') setTimeout(()=>{el.style.display='none';},5000);
 }
 
+// ── BUSCA INTELIGENTE (FILTRO EM TEMPO REAL) ──────────────────────────
+let searchTimer = null;
+
+function onSearchInput(val) {
+  const clearBtn = document.getElementById('btn-clear');
+  clearBtn.classList.toggle('visible', val.length > 0);
+
+  clearTimeout(searchTimer);
+  if (!val || val.length < 2) { hideSuggestions(); return; }
+  searchTimer = setTimeout(() => filtrarSugestoes(val), 150);
+}
+
+function onSearchKey(e) {
+  const sugg = document.getElementById('suggestions');
+  const items = sugg.querySelectorAll('.sugg-item');
+  if (!items.length) {
+    if (e.key === 'Enter') { buscarManual(); }
+    return;
+  }
+  let current = sugg.querySelector('.sugg-item.focused');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!current) { items[0].classList.add('focused'); items[0].scrollIntoView({block:'nearest'}); }
+    else {
+      current.classList.remove('focused');
+      const next = current.nextElementSibling;
+      if (next && next.classList.contains('sugg-item')) { next.classList.add('focused'); next.scrollIntoView({block:'nearest'}); }
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (current) {
+      current.classList.remove('focused');
+      const prev = current.previousElementSibling;
+      if (prev && prev.classList.contains('sugg-item')) { prev.classList.add('focused'); prev.scrollIntoView({block:'nearest'}); }
+    }
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (current) { current.click(); }
+    else { buscarManual(); }
+  } else if (e.key === 'Escape') {
+    hideSuggestions();
+  }
+}
+
+function filtrarSugestoes(termo) {
+  const sugg = document.getElementById('suggestions');
+
+  if (!cacheCarregado) {
+    sugg.innerHTML = '<div class="loading-sugg">⏳ Carregando planilha...</div>';
+    sugg.classList.add('open');
+    return;
+  }
+
+  // Busca por: contém o termo em qualquer posição da plaqueta
+  const termoLimpo = termo.replace(/\D/g,''); // só dígitos
+  if (!termoLimpo) { hideSuggestions(); return; }
+
+  const resultados = planilhaCache.filter(item =>
+    item.plaqueta.includes(termoLimpo)
+  ).slice(0, 8); // máximo 8 sugestões
+
+  if (!resultados.length) {
+    sugg.innerHTML = '<div class="sugg-count">Nenhuma plaqueta encontrada com esses dígitos</div>';
+    sugg.classList.add('open');
+    return;
+  }
+
+  const ci = l => l.toUpperCase().charCodeAt(0)-65;
+
+  let html = resultados.map(item => {
+    const plaqueta = item.plaqueta;
+    // destaca a parte digitada
+    const idx = plaqueta.indexOf(termoLimpo);
+    let plaquetaHTML = plaqueta;
+    if (idx >= 0) {
+      plaquetaHTML = plaqueta.substring(0,idx) +
+        '<mark>' + plaqueta.substring(idx, idx+termoLimpo.length) + '</mark>' +
+        plaqueta.substring(idx+termoLimpo.length);
+    }
+    const desc = (item.row[ci('C')]||'').trim();
+    return `<div class="sugg-item" onclick="selecionarSugestao('${plaqueta}', ${item.rowNum})">
+      <span class="sugg-plaqueta">${plaquetaHTML}</span>
+      <span class="sugg-desc">${desc||'—'}</span>
+    </div>`;
+  }).join('');
+
+  if (resultados.length >= 8) {
+    html += `<div class="sugg-count">Mostrando 8 resultados — continue digitando para refinar</div>`;
+  } else {
+    html += `<div class="sugg-count">${resultados.length} resultado${resultados.length>1?'s':''} encontrado${resultados.length>1?'s':''}</div>`;
+  }
+
+  sugg.innerHTML = html;
+  sugg.classList.add('open');
+}
+
+function selecionarSugestao(plaqueta, rowNum) {
+  hideSuggestions();
+  document.getElementById('manual-plaqueta').value = plaqueta;
+  document.getElementById('btn-clear').classList.add('visible');
+
+  // Busca direto no cache
+  const item = planilhaCache.find(i => i.plaqueta === plaqueta && i.rowNum === rowNum);
+  if (item) {
+    dadosLinha = item.row;
+    linhaEncontrada = item.rowNum;
+    document.getElementById('status-msg').style.display='none';
+    renderDados(item.row, plaqueta);
+  }
+}
+
+function hideSuggestions() {
+  const sugg = document.getElementById('suggestions');
+  sugg.classList.remove('open');
+  sugg.innerHTML = '';
+}
+
+function limparBusca() {
+  document.getElementById('manual-plaqueta').value='';
+  document.getElementById('btn-clear').classList.remove('visible');
+  hideSuggestions();
+}
+
+// ── CAMERA ────────────────────────────────────────────────────────────
 let cameraActive=false, stream=null;
 async function toggleCamera() {
   if(cameraActive){stopCamera();return;}
   const btn=document.getElementById('btn-camera');
   btn.textContent='⏳ Iniciando...'; btn.disabled=true;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment', width:{ideal:1920}, height:{ideal:1080}}});
     const v=document.getElementById('scanner-video');
     v.srcObject=stream; v.style.display='block';
     document.getElementById('scanner-placeholder').style.display='none';
@@ -338,7 +561,11 @@ function stopCamera() {
   cameraActive=false;
 }
 function startQuagga(video) {
-  Quagga.init({inputStream:{type:'LiveStream',target:video,constraints:{facingMode:'environment'}},decoder:{readers:['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','i2of5_reader']},locate:true},function(err){
+  Quagga.init({
+    inputStream:{type:'LiveStream',target:video,constraints:{facingMode:'environment'}},
+    decoder:{readers:['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','i2of5_reader']},
+    locate:true
+  },function(err){
     if(err){showStatus('Erro scanner: '+err,'error');return;}
     Quagga.start();
   });
@@ -349,39 +576,45 @@ function startQuagga(video) {
     lc=code;lt=now;
     stopCamera();
     document.getElementById('manual-plaqueta').value=code;
-    buscarPlaqueta(code);
+    document.getElementById('btn-clear').classList.add('visible');
+    selecionarPorPlaqueta(code);
   });
 }
 
+function selecionarPorPlaqueta(plaqueta) {
+  const item = planilhaCache.find(i => i.plaqueta === plaqueta);
+  if (item) {
+    dadosLinha=item.row; linhaEncontrada=item.rowNum;
+    renderDados(item.row, plaqueta);
+  } else {
+    showStatus('❌ Plaqueta '+plaqueta+' não encontrada.','error');
+  }
+}
+
+// ── BUSCA MANUAL (fallback) ───────────────────────────────────────────
 let dadosLinha=null, linhaEncontrada=null;
-function buscarManual(){
+
+function buscarManual() {
   const v=document.getElementById('manual-plaqueta').value.trim();
-  if(!v){showStatus('Digite o número da plaqueta.','error');return;}
-  buscarPlaqueta(v);
+  if(!v){showStatus('Digite parte do número da plaqueta.','error');return;}
+  hideSuggestions();
+
+  // Busca exata primeiro
+  const exato = planilhaCache.find(i=>i.plaqueta===v);
+  if (exato) { selecionarSugestao(exato.plaqueta, exato.rowNum); return; }
+
+  // Busca por contém
+  const resultados = planilhaCache.filter(i=>i.plaqueta.includes(v));
+  if (resultados.length === 1) {
+    selecionarSugestao(resultados[0].plaqueta, resultados[0].rowNum);
+  } else if (resultados.length > 1) {
+    filtrarSugestoes(v);
+  } else {
+    showStatus('❌ Nenhuma plaqueta encontrada com "'+v+'"','error');
+  }
 }
-async function buscarPlaqueta(plaqueta) {
-  showStatus('🔍 Buscando plaqueta '+plaqueta+'...','info');
-  document.getElementById('result-area').style.display='none';
-  try {
-    const range=encodeURIComponent(cfg.sheetName+'!A:K');
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${API_KEY}`;
-    const resp=await fetch(url);
-    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.status);}
-    const data=await resp.json();
-    const rows=data.values||[];
-    const ci=l=>l.toUpperCase().charCodeAt(0)-65;
-    const pIdx=ci(cfg.colPlaqueta);
-    let found=null,foundRow=null;
-    for(let i=cfg.startRow-1;i<rows.length;i++){
-      if(rows[i][pIdx]&&String(rows[i][pIdx]).trim()===String(plaqueta).trim()){found=rows[i];foundRow=i+1;break;}
-    }
-    if(!found){showStatus('❌ Plaqueta '+plaqueta+' não encontrada.','error');return;}
-    dadosLinha=found; linhaEncontrada=foundRow;
-    document.getElementById('status-msg').style.display='none';
-    renderDados(found,plaqueta);
-  } catch(e){showStatus('❌ Erro: '+e.message,'error');}
-}
-function renderDados(row,plaqueta) {
+
+function renderDados(row, plaqueta) {
   const ci=l=>l.toUpperCase().charCodeAt(0)-65;
   const get=l=>(row[ci(l)]||'').trim();
   const estado=get(cfg.colEstado), local=get(cfg.colLocal);
@@ -405,11 +638,13 @@ function renderDados(row,plaqueta) {
   document.getElementById('result-area').style.display='block';
   document.getElementById('result-area').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
 function badge(e){
   const m={'Novo':'badge-blue','Bom':'badge-green','Regular':'badge-amber','Inservível':'badge-red'};
   return e?`<span class="badge ${m[e]||'badge-blue'}">${e}</span>`:'<span style="color:var(--text3)">—</span>';
 }
 
+// ── SALVAR ────────────────────────────────────────────────────────────
 async function salvarDados() {
   if(!linhaEncontrada)return;
   if(!isLoggedIn()){showStatus('⚠️ Faça login com Google primeiro!','error');loginGoogle();return;}
@@ -430,21 +665,32 @@ async function salvarDados() {
       body:JSON.stringify(body)
     });
     if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.status);}
+
+    // Atualiza cache local também
+    const item = planilhaCache.find(i=>i.rowNum===linhaEncontrada);
+    if (item) {
+      const ci=l=>l.toUpperCase().charCodeAt(0)-65;
+      item.row[ci(cfg.colEstado)]=estado;
+      item.row[ci(cfg.colLocal)]=local;
+    }
+
     addHistory({plaqueta:document.getElementById('manual-plaqueta').value,desc:dadosLinha?dadosLinha[2]||'':'',estado,local,time:new Date().toLocaleTimeString('pt-BR')});
     showStatus('✅ Salvo com sucesso!','success');
     limparResultado();
   } catch(e){showStatus('❌ Erro ao salvar: '+e.message,'error');}
   btn.disabled=false; btn.textContent='💾 Salvar na planilha';
 }
-function limparResultado(){
+
+function limparResultado() {
   document.getElementById('result-area').style.display='none';
-  document.getElementById('manual-plaqueta').value='';
+  limparBusca();
   document.getElementById('campo-obs').value='';
   document.getElementById('status-msg').style.display='none';
   dadosLinha=null; linhaEncontrada=null;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// ── HISTORY ───────────────────────────────────────────────────────────
 let sessionHistory=[];
 function addHistory(item){sessionHistory.unshift(item);}
 function renderHistory(){
@@ -460,6 +706,13 @@ function renderHistory(){
       <span style="font-size:11px;color:var(--text3);">${h.time}</span>
     </div>`).join('');
 }
+
+// Fechar sugestões ao clicar fora
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.search-wrap') && !e.target.closest('#suggestions')) {
+    hideSuggestions();
+  }
+});
 
 loadConfig();
 </script>
